@@ -1,22 +1,72 @@
 #!/usr/bin/env ruby
 
 require 'fox16'
+require 'devkit'
+require 'tiny_tds'
 
 include Fox
 
-#application = FXApp.new("Hello", "FoxTest")
-#main = FXMainWindow.new(application, "LD3ADM", nil, nil, DECOR_ALL)
-#FXButton.new(main, "&Hello, World!", nil, application, FXApp::ID_QUIT)
-#application.create()
-#main.show(PLACEMENT_SCREEN)
-#"#{a}"pplication.run()
+def query_make(type,id=null)
+  case type
+    when 1
+      result_query = "SELECT * FROM LDERC Where ID = #{id}"
+    when 2
+      result_query = "DECLARE @id_doc int
+                      SET @id_doc = #{id}
+                      DELETE FROM LDDOCOPERATION WHERE MailID in (
+                      SELECT ID FROM LDMAIL WHERE ERCID = @id_doc OR BaseERCID = @id_doc)
+                      DELETE FROM LDOBJECT WHERE ID IN (SELECT ID FROM LDMAIL WHERE ERCID = @id_doc OR BaseERCID = @id_doc)"
+    when 3
+      result_query = "DECLARE @pUID [uniqueidentifier], @pObjectTypeID INT
+                      SET @pUID = 0x0C2FB3838E614B478E4F1A77B555401E --0x + UID из пакета
+                      SET @pObjectTypeID = 8 --допустимо 8,19,20
+                      INSERT dbo.GRK_LDEA_REJECTEDOBJECT (UID,ObjectTypeID)
+                      SELECT @pUID,@pObjectTypeID
+                      WHERE NOT EXISTS(SELECT NULL FROM dbo.GRK_LDEA_REJECTEDOBJECT WHERE UID = @pUID)"
+  end
+  return result_query
+end
+
+def checkRC(client, entry)
+  result = client.execute(query_make 1,entry.text)
+  return result
+end
+
+def deleteRC(client, entry)
+  result = client.execute(query_make 2,entry.text)
+  return result
+end
+
+def checkButtonPress
+  client = client_init('dba','sql')
+  #result = checkRC client, entry
+  #result.each do |row|
+   # puts row
+  #end
+  client.close
+  puts "Check!!"
+end
+
+
+
+def client_init (username,password)
+  client = TinyTds::Client.new username: username, password: password,
+                               host: '10.47.0.117', port: 1433,
+                               database: 'LDPROM', timeout: 180
+  return client
+end
+
+def showPig
+  @text.value = '@text.value.split.collect{|w| pig(w)}.join(" ")'
+end
+
 
 
 class MainWindows < FXMainWindow
 
   def initialize(app)
     # Invoke base class initialize first
-    super(app, "LD3ADM Kozlovskiy EDITION", :opts => DECOR_ALL, :width => 400, :height => 200)
+    super(app, "LD3ADM Kozlovskiy EDITION", :opts => DECOR_ALL, :width => 640, :height => 480,)
 
     # Tooltip
     FXToolTip.new(getApp())
@@ -41,27 +91,41 @@ class MainWindows < FXMainWindow
       theFrame.padTop = 10
       theFrame.vSpacing = 20
     end
-    FXLabel.new(top, 'Enter Text:') do |theLabel|
+
+    FXLabel.new(top, 'ENTER REG CARD ID OR PACKET GUID:') do |theLabel|
       theLabel.layoutHints = LAYOUT_FILL_X
     end
+
+    p = proc { puts @text.value }
+
+    @text = FXDataTarget.new("")
 
     FXTextField.new(top, 20, @text, FXDataTarget::ID_VALUE) do |theTextField|
       theTextField.layoutHints = LAYOUT_FILL_X
       theTextField.setFocus()
     end
 
-    FXButton.new(top, 'Pig It') do |pigButton|
-      pigButton.connect(SEL_COMMAND, p)
-      pigButton.layoutHints = LAYOUT_CENTER_X
+
+
+    FXButton.new(top, 'Проверить ID',:opts => FRAME_RAISED|FRAME_THICK|LAYOUT_CENTER_X|LAYOUT_CENTER_Y|LAYOUT_FIX_WIDTH|LAYOUT_FIX_HEIGHT,
+                 :width => 200, :height => 50) do |checkButton|
+      checkButton.connect(SEL_COMMAND) { checkButtonPress }
     end
 
-    FXButton.new(top, 'Exit') do |exitButton|
-      exitButton.connect(SEL_COMMAND) { exit }
-      exitButton.layoutHints = LAYOUT_CENTER_X
+    FXButton.new(top, 'Удалить все сообщения и отчеты',:opts => FRAME_RAISED|FRAME_THICK|LAYOUT_CENTER_X|LAYOUT_CENTER_Y|LAYOUT_FIX_WIDTH|LAYOUT_FIX_HEIGHT,
+        :width => 200, :height => 50) do |deleteButton|
+      deleteButton.connect(SEL_COMMAND, p)
     end
 
+    FXButton.new(top, 'Разблокировать РК', :opts => FRAME_RAISED|FRAME_THICK|LAYOUT_CENTER_X|LAYOUT_CENTER_Y|LAYOUT_FIX_WIDTH|LAYOUT_FIX_HEIGHT,
+                 :width => 200, :height => 50) do |unblockButton|
+      unblockButton.connect(SEL_COMMAND, p)
+    end
 
-
+    FXButton.new(top, 'ПСО ошибка с GUID', :opts => FRAME_RAISED|FRAME_THICK|LAYOUT_CENTER_X|LAYOUT_CENTER_Y|LAYOUT_FIX_WIDTH|LAYOUT_FIX_HEIGHT,
+                 :width => 200, :height => 50) do |psoGuidButton|
+      psoGuidButton.connect(SEL_COMMAND) { exit }
+    end
 
   end
 
