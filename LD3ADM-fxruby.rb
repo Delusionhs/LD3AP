@@ -4,6 +4,10 @@ require 'tiny_tds'
 
 include Fox
 
+#####
+##### Диалоговое окно
+#####
+
 class FXTestDialog < FXDialogBox
 
   def initialize(owner)
@@ -37,6 +41,11 @@ class FXTestDialog < FXDialogBox
     cancel.setFocus
   end
 end
+
+#####
+##### Главное окно
+#####
+
 
 class MainWindows < FXMainWindow
 
@@ -109,13 +118,9 @@ class MainWindows < FXMainWindow
 
   end
 
-  # Start
-  def create
-    super
-    show(PLACEMENT_SCREEN)
-  end
-end
 
+
+#возвращает строку с SQL запросом определенном типа (type), id - идентефикатор РК, ГУИД и т.д.
 
 def query_make(type,id=null)
   case type
@@ -142,22 +147,31 @@ def query_make(type,id=null)
   return result_query
 end
 
+#проверка соединения с бд
+
 def checkConnection
   client = client_init('dba','sql')
   puts "CONNECTION OK"
   client.close
 end
 
+#проверка РК
 def checkRC(client, entry)
   result = client.execute(query_make 1,entry.text)
-  return result
+  if result != nil
+    return false
+  end
+  return true
 end
+
+#удаление РК (?!)
 
 def deleteRC(client, entry)
   result = client.execute(query_make 2,entry.text)
   return result
 end
 
+#нажатие кропки CHECK
 def checkButtonPress
   client = client_init('dba','sql')
   #result = checkRC client, entry
@@ -168,8 +182,7 @@ def checkButtonPress
   puts "Check!!"
 end
 
-
-
+#tiny TDS клиент
 def client_init (username,password)
   client = TinyTds::Client.new username: username, password: password,
                                host: '123', port: 1433,
@@ -181,14 +194,19 @@ def showPig
   @text.value = '@text.value.split.collect{|w| pig(w)}.join(" ")'
 end
 
-def onCmdShowDialog(sender, sel, ptr)
-  @dialog.show
-end
 
 # Show a modal dialog
 def onCmdShowDialogModal(sender, sel, ptr)
   FXTestDialog.new(self).execute
   return 1
+end
+
+
+# Start
+  def create
+    super
+    show(PLACEMENT_SCREEN)
+  end
 end
 
 
