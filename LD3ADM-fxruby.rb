@@ -23,12 +23,14 @@ class FXTestDialog < FXDialogBox
 
         # Accept
      FXButton.new(buttons, "&Accept", nil, self, ID_ACCEPT,
-                          :opts => FRAME_RAISED|FRAME_THICK|LAYOUT_CENTER_X|LAYOUT_CENTER_Y|LAYOUT_FIX_WIDTH|LAYOUT_FIX_HEIGHT,
+                          :opts => FRAME_RAISED|FRAME_THICK|LAYOUT_CENTER_X|
+                                   LAYOUT_CENTER_Y|LAYOUT_FIX_WIDTH|LAYOUT_FIX_HEIGHT,
                           :width => 100, :height => 30)
 
     # Cancel
     cancel = FXButton.new(buttons, "&Cancel", nil, self, ID_CANCEL,
-        :opts => FRAME_RAISED|FRAME_THICK|LAYOUT_CENTER_X|LAYOUT_CENTER_Y|LAYOUT_FIX_WIDTH|LAYOUT_FIX_HEIGHT,
+        :opts => FRAME_RAISED|FRAME_THICK|LAYOUT_CENTER_X|LAYOUT_CENTER_Y|
+                 LAYOUT_FIX_WIDTH|LAYOUT_FIX_HEIGHT,
                  :width => 100, :height => 30)
 
     cancel.setDefault
@@ -81,22 +83,26 @@ class MainWindows < FXMainWindow
 
 
 
-    FXButton.new(top, "Проверить ID",:opts => FRAME_RAISED|FRAME_THICK|LAYOUT_CENTER_X|LAYOUT_CENTER_Y|LAYOUT_FIX_WIDTH|LAYOUT_FIX_HEIGHT,
+    FXButton.new(top, "Проверить ID",:opts => FRAME_RAISED|FRAME_THICK|LAYOUT_CENTER_X|
+                                              LAYOUT_CENTER_Y|LAYOUT_FIX_WIDTH|LAYOUT_FIX_HEIGHT,
                  :width => 250, :height => 40) do |checkButton|
       checkButton.connect(SEL_COMMAND) { checkButtonPress }
     end
 
-    FXButton.new(top, "Удалить все сообщения и отчеты",:opts => FRAME_RAISED|FRAME_THICK|LAYOUT_CENTER_X|LAYOUT_CENTER_Y|LAYOUT_FIX_WIDTH|LAYOUT_FIX_HEIGHT,
+    FXButton.new(top, "Удалить все сообщения и отчеты",:opts => FRAME_RAISED|FRAME_THICK|LAYOUT_CENTER_X|
+                                                                LAYOUT_CENTER_Y|LAYOUT_FIX_WIDTH|LAYOUT_FIX_HEIGHT,
         :width => 250, :height => 40) do |deleteButton|
       deleteButton.connect(SEL_COMMAND,  method(:onCmdShowDialogModal))
     end
 
-    FXButton.new(top, "Разблокировать РК", :opts => FRAME_RAISED|FRAME_THICK|LAYOUT_CENTER_X|LAYOUT_CENTER_Y|LAYOUT_FIX_WIDTH|LAYOUT_FIX_HEIGHT,
+    FXButton.new(top, "Разблокировать РК", :opts => FRAME_RAISED|FRAME_THICK|LAYOUT_CENTER_X|
+                                                    LAYOUT_CENTER_Y|LAYOUT_FIX_WIDTH|LAYOUT_FIX_HEIGHT,
                  :width => 250, :height => 40) do |unblockButton|
       unblockButton.connect(SEL_COMMAND,p)
     end
 
-    FXButton.new(top, "ПСО ошибка с GUID", :opts => FRAME_RAISED|FRAME_THICK|LAYOUT_CENTER_X|LAYOUT_CENTER_Y|LAYOUT_FIX_WIDTH|LAYOUT_FIX_HEIGHT,
+    FXButton.new(top, "ПСО ошибка с GUID", :opts => FRAME_RAISED|FRAME_THICK|LAYOUT_CENTER_X|
+                                                    LAYOUT_CENTER_Y|LAYOUT_FIX_WIDTH|LAYOUT_FIX_HEIGHT,
                  :width => 250, :height => 40) do |psoGuidButton|
       psoGuidButton.connect(SEL_COMMAND) { exit }
     end
