@@ -92,7 +92,7 @@ class MainWindows < FXMainWindow
       theTextField.setFocus()
     end
 
-    image = loadIcon("kozl.png")
+    #image = loadIcon("kozl.png")
 
 
     FXButton.new(top, "Проверить ID",:opts => FRAME_RAISED|FRAME_THICK|LAYOUT_LEFT|
@@ -156,12 +156,14 @@ def query_make(type,id=null)
                       SELECT @pUID,@pObjectTypeID
                       WHERE NOT EXISTS(SELECT NULL FROM dbo.GRK_LDEA_REJECTEDOBJECT WHERE UID = @pUID)"
     when 5
-      result_query = "DECLARE @version_id int
-                      DELETE FROM LDDOCOPERATION WHERE MailID in (
-                      SELECT MailID FROM LDMAILVERSION WHERE VersionID = @version_id)
-                      DELETE FROM LDOBJECT  WHERE ID in (
-                      SELECT MailID FROM LDMAILVERSION WHERE VersionID = @version_id)
-                      DELETE FROM LDMAILVERSION WHERE VersionID = @version_id"
+      result_query = "DECLARE @id_doc int
+                      SET @id_doc = #{id}
+                      DELETE  FROM LDDOCOPERATION WHERE MailID in (
+                      SELECT ID FROM LDMAIL WHERE ERCID = @id_doc OR BaseERCID = @id_doc)
+                      DELETE  FROM LDOBJECT WHERE ID IN (
+                      SELECT ID FROM LDMAIL WHERE ERCID = @id_doc OR BaseERCID = @id_doc)
+                      DELETE FROM LDMAILVERSION Where MailID in (
+                      SELECT ID FROM LDMAIL WHERE ERCID = @id_doc OR BaseERCID = @id_doc)"
   end
   return result_query
 end
