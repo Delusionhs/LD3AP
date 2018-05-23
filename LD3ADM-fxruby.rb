@@ -48,6 +48,42 @@ end
 #####
 
 
+class ResultDialog < FXDialogBox
+
+  def initialize(owner)
+    # Invoke base class initialize function first
+    super(owner, "Result", DECOR_TITLE|DECOR_BORDER)
+
+    FXLabel.new(self, 'Query done') do |theLabel|
+      theLabel.layoutHints = LAYOUT_FILL_X
+    end
+
+    # Bottom buttons
+    buttons = FXHorizontalFrame.new(self,
+                                    LAYOUT_SIDE_BOTTOM|FRAME_NONE|LAYOUT_FILL_X|PACK_UNIFORM_WIDTH,
+                                    :padLeft => 40, :padRight => 40, :padTop => 20, :padBottom => 20)
+
+
+
+    # Menu
+    menu = FXMenuPane.new(self)
+    FXMenuCommand.new(menu, "&OK", nil, self, ID_CANCEL)
+    # Cancel
+    cancel = FXButton.new(buttons, "&OK", nil, self, ID_CANCEL,
+                          :opts => FRAME_RAISED|FRAME_THICK|LAYOUT_CENTER_X|LAYOUT_CENTER_Y|
+                              LAYOUT_FIX_WIDTH|LAYOUT_FIX_HEIGHT,
+                          :width => 100, :height => 30)
+    cancel.setDefault
+    cancel.setFocus
+  end
+end
+
+
+#####
+##### Главное окно
+#####
+
+
 class MainWindows < FXMainWindow
 
   def initialize(app)
@@ -111,7 +147,7 @@ class MainWindows < FXMainWindow
     FXButton.new(top, "Разблокировать РК", :opts => FRAME_RAISED|FRAME_THICK|LAYOUT_LEFT|
                                                     LAYOUT_CENTER_Y|LAYOUT_FIX_WIDTH|LAYOUT_FIX_HEIGHT,
                  :width => 250, :height => 40) do |unblockButton|
-      unblockButton.connect(SEL_COMMAND,p)
+      unblockButton.connect(SEL_COMMAND,method(:onCmdShowResultDialog))
     end
 
     FXButton.new(top, "Удаление файла", :opts => FRAME_RAISED|FRAME_THICK|LAYOUT_LEFT|
@@ -201,6 +237,7 @@ def checkButtonPress(entry)
   checkRC client,entry
   client.close
   puts "Check!!"
+  onCmdShowResultDialog
 end
 
 def buttonPress(type,entry)
@@ -224,10 +261,15 @@ end
 
 
 # Show a modal dialog
-def onCmdShowDialogModal(sender, sel, ptr)
+def onCmdShowDialogModal(sender=nil, sel=nil, ptr=nil)
   FXTestDialog.new(self).execute
   return 1
 end
+
+  def onCmdShowResultDialog(sender=nil, sel=nil, ptr=nil)
+    ResultDialog.new(self).execute
+    return 1
+  end
 
 
 # Start
