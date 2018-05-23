@@ -159,7 +159,6 @@ def query_make(type,id=null)
                       SELECT MailID FROM LDMAILVERSION WHERE VersionID = @version_id)
                       DELETE FROM LDMAILVERSION WHERE VersionID = @version_id"
   end
-
   return result_query
 end
 
@@ -176,7 +175,7 @@ def checkRC(client, entry)
   result = client.execute(query_make 1,entry)
   result.each_with_index do |row|
     puts row["DocN"]
-    end
+  end
 end
 
 #удаление РК (?!)
@@ -188,7 +187,7 @@ end
 
 #нажатие кропки CHECK
 def checkButtonPress(entry)
-  client = client_init('dba','sql')
+  client = client_init'dba','sql'
   #result = checkRC client, entry
   #result.each do |row|
   # puts row
@@ -197,6 +196,13 @@ def checkButtonPress(entry)
   client.close
   puts "Check!!"
 end
+
+def buttonPress(type,entry)
+  client = client_init'dba','sql'
+  result = client.execute(query_make type,entry)
+  client.close
+end
+
 
 #tiny TDS клиент
 def client_init (username,password)
@@ -219,10 +225,10 @@ end
 
 
 # Start
-  def create
-    super
-    show(PLACEMENT_SCREEN)
-  end
+def create
+  super
+  show(PLACEMENT_SCREEN)
+end
 end
 
 #загрузка изображения
