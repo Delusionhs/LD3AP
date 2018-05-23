@@ -4,6 +4,7 @@ require 'tiny_tds'
 
 include Fox
 
+
 #####
 ##### Диалоговое окно
 #####
@@ -77,7 +78,7 @@ class MainWindows < FXMainWindow
       theFrame.vSpacing = 20
     end
 
-    FXLabel.new(top, 'ENTER REG CARD ID OR PACKET GUID:') do |theLabel|
+    FXLabel.new(top, 'ENTER ID:') do |theLabel|
       theLabel.layoutHints = LAYOUT_FILL_X
     end
 
@@ -94,35 +95,38 @@ class MainWindows < FXMainWindow
     image = loadIcon("kozl.png")
 
 
-    FXButton.new(top, "Проверить ID",:opts => FRAME_RAISED|FRAME_THICK|LAYOUT_CENTER_X|
+    FXButton.new(top, "Проверить ID",:opts => FRAME_RAISED|FRAME_THICK|LAYOUT_LEFT|
                                               LAYOUT_CENTER_Y|LAYOUT_FIX_WIDTH|LAYOUT_FIX_HEIGHT,
                  :width => 250, :height => 40) do |checkButton|
       checkButton.connect(SEL_COMMAND) { checkButtonPress(textField.getText) }
     end
 
-    FXButton.new(top, "Удалить все сообщения и отчеты",:opts => FRAME_RAISED|FRAME_THICK|LAYOUT_CENTER_X|
+
+    FXButton.new(top, "Удалить все сообщения и отчеты",:opts => FRAME_RAISED|FRAME_THICK|LAYOUT_LEFT|
                                                                 LAYOUT_CENTER_Y|LAYOUT_FIX_WIDTH|LAYOUT_FIX_HEIGHT,
         :width => 250, :height => 40) do |deleteButton|
       deleteButton.connect(SEL_COMMAND,  method(:onCmdShowDialogModal))
     end
 
-    FXButton.new(top, "Разблокировать РК", :opts => FRAME_RAISED|FRAME_THICK|LAYOUT_CENTER_X|
+    FXButton.new(top, "Разблокировать РК", :opts => FRAME_RAISED|FRAME_THICK|LAYOUT_LEFT|
                                                     LAYOUT_CENTER_Y|LAYOUT_FIX_WIDTH|LAYOUT_FIX_HEIGHT,
                  :width => 250, :height => 40) do |unblockButton|
       unblockButton.connect(SEL_COMMAND,p)
     end
 
-    FXButton.new(top, "Удаление файла", :opts => FRAME_RAISED|FRAME_THICK|LAYOUT_CENTER_X|
+    FXButton.new(top, "Удаление файла", :opts => FRAME_RAISED|FRAME_THICK|LAYOUT_LEFT|
                                                     LAYOUT_CENTER_Y|LAYOUT_FIX_WIDTH|LAYOUT_FIX_HEIGHT,
                  :width => 250, :height => 40) do |fileButton|
       fileButton.connect(SEL_COMMAND) { exit }
     end
 
-    FXButton.new(top, "ПСО ошибка с GUID", :opts => FRAME_RAISED|FRAME_THICK|LAYOUT_CENTER_X|
+    FXButton.new(top, "ПСО ошибка с GUID", :opts => FRAME_RAISED|FRAME_THICK|LAYOUT_LEFT|
         LAYOUT_CENTER_Y|LAYOUT_FIX_WIDTH|LAYOUT_FIX_HEIGHT,
                  :width => 250, :height => 40) do |psoGuidButton|
       psoGuidButton.connect(SEL_COMMAND) { exit }
     end
+
+
 
   end
 
