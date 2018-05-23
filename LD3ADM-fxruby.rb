@@ -51,7 +51,7 @@ class MainWindows < FXMainWindow
 
   def initialize(app)
     # Invoke base class initialize first
-    super(app, "LD3ADM GovnoIzJopi EDITION", :opts => DECOR_ALL, :width => 400, :height => 350,)
+    super(app, "LD3ADM GovnoIzJopi EDITION", :opts => DECOR_ALL, :width => 450, :height => 400,)
 
     # Tooltip
     FXToolTip.new(getApp())
@@ -91,6 +91,7 @@ class MainWindows < FXMainWindow
       theTextField.setFocus()
     end
 
+    image = loadIcon("kozl.png")
 
 
     FXButton.new(top, "Проверить ID",:opts => FRAME_RAISED|FRAME_THICK|LAYOUT_CENTER_X|
@@ -111,8 +112,14 @@ class MainWindows < FXMainWindow
       unblockButton.connect(SEL_COMMAND,p)
     end
 
-    FXButton.new(top, "ПСО ошибка с GUID", :opts => FRAME_RAISED|FRAME_THICK|LAYOUT_CENTER_X|
+    FXButton.new(top, "Удаление файла", :opts => FRAME_RAISED|FRAME_THICK|LAYOUT_CENTER_X|
                                                     LAYOUT_CENTER_Y|LAYOUT_FIX_WIDTH|LAYOUT_FIX_HEIGHT,
+                 :width => 250, :height => 40) do |fileButton|
+      fileButton.connect(SEL_COMMAND) { exit }
+    end
+
+    FXButton.new(top, "ПСО ошибка с GUID", :opts => FRAME_RAISED|FRAME_THICK|LAYOUT_CENTER_X|
+        LAYOUT_CENTER_Y|LAYOUT_FIX_WIDTH|LAYOUT_FIX_HEIGHT,
                  :width => 250, :height => 40) do |psoGuidButton|
       psoGuidButton.connect(SEL_COMMAND) { exit }
     end
@@ -144,6 +151,13 @@ def query_make(type,id=null)
                       INSERT dbo.GRK_LDEA_REJECTEDOBJECT (UID,ObjectTypeID)
                       SELECT @pUID,@pObjectTypeID
                       WHERE NOT EXISTS(SELECT NULL FROM dbo.GRK_LDEA_REJECTEDOBJECT WHERE UID = @pUID)"
+    when 5
+      result_query = "DECLARE @version_id int
+                      DELETE FROM LDDOCOPERATION WHERE MailID in (
+                      SELECT MailID FROM LDMAILVERSION WHERE VersionID = @version_id)
+                      DELETE FROM LDOBJECT  WHERE ID in (
+                      SELECT MailID FROM LDMAILVERSION WHERE VersionID = @version_id)
+                      DELETE FROM LDMAILVERSION WHERE VersionID = @version_id"
   end
 
   return result_query
@@ -209,6 +223,25 @@ end
     super
     show(PLACEMENT_SCREEN)
   end
+end
+
+#загрузка изображения
+def loadIcon(filename)
+  begin
+    filename = File.join("icons", filename)
+    icon = nil
+    File.open(filename, "rb") do |f|
+      icon = FXPNGIcon.new(getApp(), f.read)
+    end
+    icon
+  rescue
+    raise RuntimeError, "Couldn't load icon: #{filename}"
+  end
+end
+
+def create
+  super
+  show(PLACEMENT_SCREEN)
 end
 
 
