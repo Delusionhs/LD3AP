@@ -1,172 +1,6 @@
-require 'fox16'
 require 'devkit'
 require 'tiny_tds'
-
-include Fox
-
-
-#####
-##### Диалоговое окно
-#####
-
-class FXTestDialog < FXDialogBox
-
-  def initialize(owner)
-    # Invoke base class initialize function first
-    super(owner, "Are you fucking sure?", DECOR_TITLE|DECOR_BORDER)
-
-    # Bottom buttons
-    buttons = FXHorizontalFrame.new(self,
-                                    LAYOUT_SIDE_BOTTOM|FRAME_NONE|LAYOUT_FILL_X|PACK_UNIFORM_WIDTH,
-                                    :padLeft => 40, :padRight => 40, :padTop => 20, :padBottom => 20)
-
-
-    # Menu
-    menu = FXMenuPane.new(self)
-    FXMenuCommand.new(menu, "&Accept", nil, self, ID_ACCEPT)
-    FXMenuCommand.new(menu, "&Cancel", nil, self, ID_CANCEL)
-
-        # Accept
-     FXButton.new(buttons, "&Accept", nil, self, ID_ACCEPT,
-                          :opts => FRAME_RAISED|FRAME_THICK|LAYOUT_CENTER_X|
-                                   LAYOUT_CENTER_Y|LAYOUT_FIX_WIDTH|LAYOUT_FIX_HEIGHT,
-                          :width => 100, :height => 30)
-
-    # Cancel
-    cancel = FXButton.new(buttons, "&Cancel", nil, self, ID_CANCEL,
-        :opts => FRAME_RAISED|FRAME_THICK|LAYOUT_CENTER_X|LAYOUT_CENTER_Y|
-                 LAYOUT_FIX_WIDTH|LAYOUT_FIX_HEIGHT,
-                 :width => 100, :height => 30)
-
-    cancel.setDefault
-    cancel.setFocus
-  end
-end
-
-#####
-##### Главное окно
-#####
-
-
-class ResultDialog < FXDialogBox
-
-  def initialize(owner)
-    # Invoke base class initialize function first
-    super(owner, "Result", DECOR_TITLE|DECOR_BORDER)
-
-    FXLabel.new(self, 'Query done') do |theLabel|
-      theLabel.layoutHints = LAYOUT_FILL_X
-    end
-
-    # Bottom buttons
-    buttons = FXHorizontalFrame.new(self,
-                                    LAYOUT_SIDE_BOTTOM|FRAME_NONE|LAYOUT_FILL_X|PACK_UNIFORM_WIDTH,
-                                    :padLeft => 40, :padRight => 40, :padTop => 20, :padBottom => 20)
-
-
-
-    # Menu
-    menu = FXMenuPane.new(self)
-    FXMenuCommand.new(menu, "&OK", nil, self, ID_CANCEL)
-    # Cancel
-    cancel = FXButton.new(buttons, "&OK", nil, self, ID_CANCEL,
-                          :opts => FRAME_RAISED|FRAME_THICK|LAYOUT_CENTER_X|LAYOUT_CENTER_Y|
-                              LAYOUT_FIX_WIDTH|LAYOUT_FIX_HEIGHT,
-                          :width => 100, :height => 30)
-    cancel.setDefault
-    cancel.setFocus
-  end
-end
-
-
-#####
-##### Главное окно
-#####
-
-
-class MainWindows < FXMainWindow
-
-  def initialize(app)
-    # Invoke base class initialize first
-    super(app, "LD3ADM GovnoIzJopi EDITION", :opts => DECOR_ALL, :width => 450, :height => 400,)
-
-    # Tooltip
-    FXToolTip.new(getApp())
-
-    # Menubar
-    menubar = FXMenuBar.new(self, LAYOUT_SIDE_TOP|LAYOUT_FILL_X)
-
-    # Separator
-    FXHorizontalSeparator.new(self,
-                              LAYOUT_SIDE_TOP|LAYOUT_FILL_X|SEPARATOR_GROOVE)
-
-    # File Menu
-    filemenu = FXMenuPane.new(self)
-    FXMenuCommand.new(filemenu, "&Проверить соединение", nil, getApp(), FXApp::ID_QUIT, 0)
-    FXMenuCommand.new(filemenu, "&Выход", nil, getApp(), FXApp::ID_QUIT, 0)
-    FXMenuTitle.new(menubar, "&Файл", nil, filemenu)
-
-    top = FXVerticalFrame.new(self, LAYOUT_FILL_X|LAYOUT_FILL_Y) do |theFrame|
-      theFrame.padLeft = 10
-      theFrame.padRight = 10
-      theFrame.padBottom = 10
-      theFrame.padTop = 10
-      theFrame.vSpacing = 20
-    end
-
-    FXLabel.new(top, 'ENTER ID:') do |theLabel|
-      theLabel.layoutHints = LAYOUT_FILL_X
-    end
-
-    p = proc { @text.value }
-
-
-    @text = FXDataTarget.new("")
-
-    textField = FXTextField.new(top, 20, @text, FXDataTarget::ID_VALUE) do |theTextField|
-      theTextField.layoutHints = LAYOUT_FILL_X
-      theTextField.setFocus()
-    end
-
-    #image = loadIcon("kozl.png")
-
-
-    FXButton.new(top, "Проверить ID",:opts => FRAME_RAISED|FRAME_THICK|LAYOUT_LEFT|
-                                              LAYOUT_CENTER_Y|LAYOUT_FIX_WIDTH|LAYOUT_FIX_HEIGHT,
-                 :width => 250, :height => 40) do |checkButton|
-      checkButton.connect(SEL_COMMAND) { checkButtonPress(textField.getText) }
-    end
-
-
-    FXButton.new(top, "Удалить все сообщения и отчеты",:opts => FRAME_RAISED|FRAME_THICK|LAYOUT_LEFT|
-                                                                LAYOUT_CENTER_Y|LAYOUT_FIX_WIDTH|LAYOUT_FIX_HEIGHT,
-        :width => 250, :height => 40) do |deleteButton|
-      deleteButton.connect(SEL_COMMAND,  method(:onCmdShowDialogModal))
-    end
-
-    FXButton.new(top, "Разблокировать РК", :opts => FRAME_RAISED|FRAME_THICK|LAYOUT_LEFT|
-                                                    LAYOUT_CENTER_Y|LAYOUT_FIX_WIDTH|LAYOUT_FIX_HEIGHT,
-                 :width => 250, :height => 40) do |unblockButton|
-      unblockButton.connect(SEL_COMMAND,method(:onCmdShowResultDialog))
-    end
-
-    FXButton.new(top, "Удаление файла", :opts => FRAME_RAISED|FRAME_THICK|LAYOUT_LEFT|
-                                                    LAYOUT_CENTER_Y|LAYOUT_FIX_WIDTH|LAYOUT_FIX_HEIGHT,
-                 :width => 250, :height => 40) do |fileButton|
-      fileButton.connect(SEL_COMMAND) { exit }
-    end
-
-    FXButton.new(top, "ПСО ошибка с GUID", :opts => FRAME_RAISED|FRAME_THICK|LAYOUT_LEFT|
-        LAYOUT_CENTER_Y|LAYOUT_FIX_WIDTH|LAYOUT_FIX_HEIGHT,
-                 :width => 250, :height => 40) do |psoGuidButton|
-      psoGuidButton.connect(SEL_COMMAND) { exit }
-    end
-
-
-
-  end
-
-
+require './LD3ADM-UI'
 
 #возвращает строку с SQL запросом определенном типа (type), id - идентефикатор РК, ГУИД и т.д.
 
@@ -213,11 +47,15 @@ def checkConnection
 end
 
 #проверка РК
-def checkRC(client, entry)
+def checkRC(entry)
+  client = client_init'dba','sql'
   result = client.execute(query_make 1,entry)
   result.each_with_index do |row|
     puts row["DocN"]
+    text = row["DocN"]
   end
+  client.close
+  return text
 end
 
 #удаление РК (?!)
@@ -229,14 +67,14 @@ end
 
 #нажатие кропки CHECK
 def checkButtonPress(entry)
-  client = client_init'dba','sql'
+  #client = client_init'dba','sql'
   #result = checkRC client, entry
   #result.each do |row|
   # puts row
   #end
-  checkRC client,entry
-  client.close
-  puts "Check!!"
+  #checkRC client,entry
+  #client.close
+  #puts "Check!!"
   onCmdShowResultDialog
 end
 
@@ -255,48 +93,6 @@ def client_init (username,password)
   return client
 end
 
-def showPig
-  @text.value = '@text.value.split.collect{|w| pig(w)}.join(" ")'
-end
-
-
-# Show a modal dialog
-def onCmdShowDialogModal(sender=nil, sel=nil, ptr=nil)
-  FXTestDialog.new(self).execute
-  return 1
-end
-
-  def onCmdShowResultDialog(sender=nil, sel=nil, ptr=nil)
-    ResultDialog.new(self).execute
-    return 1
-  end
-
-
-# Start
-def create
-  super
-  show(PLACEMENT_SCREEN)
-end
-end
-
-#загрузка изображения
-def loadIcon(filename)
-  begin
-    filename = File.join("icons", filename)
-    icon = nil
-    File.open(filename, "rb") do |f|
-      icon = FXPNGIcon.new(getApp(), f.read)
-    end
-    icon
-  rescue
-    raise RuntimeError, "Couldn't load icon: #{filename}"
-  end
-end
-
-def create
-  super
-  show(PLACEMENT_SCREEN)
-end
 
 
 def run
@@ -304,7 +100,7 @@ def run
   application = FXApp.new("Dialog", "FoxTest")
 
   # Construct the application's main window
-  MainWindows.new(application)
+  MainWindow.new(application)
 
   # Create the application
   application.create
