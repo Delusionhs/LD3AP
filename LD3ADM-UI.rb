@@ -92,9 +92,6 @@ class MainWindow < FXMainWindow
     textBox.text = "Регистрационный номер:\nДата Регистрации:\nЖурнал:\n"
 
     statusLabel = FXLabel.new(contents, "QueryStatus:none")
-
-
-
   end
 
 #####
@@ -103,7 +100,7 @@ class MainWindow < FXMainWindow
 
 class ConfirmDialog < FXDialogBox
 
-  def initialize(owner, doc_num = "unavalible")
+  def initialize(owner, doc_num = "unavalible", query_type = nil)
       # Invoke base class initialize function first
     super(owner, "Are you fucking sure?", DECOR_TITLE|DECOR_BORDER)
 
@@ -124,10 +121,12 @@ class ConfirmDialog < FXDialogBox
     FXMenuCommand.new(menu, "&Cancel", nil, self, ID_CANCEL)
 
     # Accept
-    FXButton.new(buttons, "&Accept", nil, self, ID_ACCEPT,
+    accept = FXButton.new(buttons, "&Accept",
                  :opts => FRAME_RAISED|FRAME_THICK|LAYOUT_CENTER_X|LAYOUT_CENTER_Y|
                      LAYOUT_FIX_WIDTH|LAYOUT_FIX_HEIGHT,
                    :width => 100, :height => 30)
+
+    accept.connect(SEL_COMMAND, method(:checkConnection))
 
     # Cancel
     cancel = FXButton.new(buttons, "&Cancel", nil, self, ID_CANCEL,
@@ -180,11 +179,92 @@ def onCmdShowDialogModal(sender=nil, sel=nil, ptr=nil)
   return 1
 end
 
+######### end ui
+
+
+
 def create
     super
     show(PLACEMENT_SCREEN)
   end
 end
+
+
+##
+##queries/connection
+##
+
+
+def query_make(type,id=null)
+  case type
+    when 1
+      result_query = "SELECT DocN FROM LDERC Where ID = #{id}"
+    when 2
+      result_query = "DECLARE @id_doc int
+                      SET @id_doc = #{id}
+                      DELETE FROM LDDOCOPERATION WHERE MailID in (
+                      SELECT ID FROM LDMAIL WHERE ERCID = @id_doc OR BaseERCID = @id_doc)
+                      DELETE FROM LDOBJECT WHERE ID IN (SELECT ID FROM LDMAIL WHERE ERCID = @id_doc OR BaseERCID = @id_doc)"
+    when 3
+      result_query = "update LDOBJECT set EditorID=NULL where ID= #{id}"
+
+    when 4
+      result_query = "DECLARE @pUID [uniqueidentifier], @pObjectTypeID INT
+                      SET @pUID = 0x#{id}
+                      SET @pObjectTypeID = 8 --допустимо 8,19,20
+                      INSERT dbo.GRK_LDEA_REJECTEDOBJECT (UID,ObjectTypeID)
+                      SELECT @pUID,@pObjectTypeID
+                      WHERE NOT EXISTS(SELECT NULL FROM dbo.GRK_LDEA_REJECTEDOBJECT WHERE UID = @pUID)"
+    when 5
+      result_query = "DECLARE @id_doc int
+                      SET @id_doc = #{id}
+                      DELETE  FROM LDDOCOPERATION WHERE MailID in (
+                      SELECT ID FROM LDMAIL WHERE ERCID = @id_doc OR BaseERCID = @id_doc)
+                      DELETE  FROM LDOBJECT WHERE ID IN (
+                      SELECT ID FROM LDMAIL WHERE ERCID = @id_doc OR BaseERCID = @id_doc)
+                      DELETE FROM LDMAILVERSION Where MailID in (
+                      SELECT ID FROM LDMAIL WHERE ERCID = @id_doc OR BaseERCID = @id_doc)"
+  end
+  return result_query
+end
+
+
+#tiny TDS клиент
+def client_init (username,password)
+  client = TinyTds::Client.new username: username, password: password,
+                               host: 'WIN-9655Q11EAT8', port: 1433,
+                               database: 'LD', timeout: 180
+  return client
+end
+
+
+##
+##queries/connection end
+##
+
+##
+##buttons
+##
+
+def checkConnection
+  client = client_init('dba','sql')
+  puts "CONNECTION OK"
+  client.close
+end
+
+def buttonDML(type,entry)
+  client = client_init('dba','sql')
+  client.execute(query_make type,entry)
+  client.close
+end
+
+
+##
+##buttons end
+##
+
+
+
 
 if __FILE__ == $0
   # Construct an application
