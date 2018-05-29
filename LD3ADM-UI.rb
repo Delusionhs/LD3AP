@@ -1,4 +1,6 @@
 require 'fox16'
+require 'tiny_tds'
+require 'devkit'
 include Fox
 
 
@@ -10,7 +12,7 @@ class MainWindow < FXMainWindow
 
   def initialize(app)
     # Invoke base class initialize first
-    super(app, "LD3ADM Rise of the Kozlovskiy EDITION", :opts => DECOR_ALL, :width => 640, :height => 250)
+    super(app, "LD3ADM Kozlovskiy Revenge EDITION (0.2b)", :opts => DECOR_ALL, :width => 640, :height => 250)
 
     # Create a tooltip
     FXToolTip.new(self.getApp())
@@ -60,17 +62,17 @@ class MainWindow < FXMainWindow
 
     checkButton = FXButton.new(contents, "Проверить ID",:opts => FRAME_RAISED|FRAME_THICK|LAYOUT_CENTER_X|LAYOUT_CENTER_Y|LAYOUT_FIX_WIDTH,
                                :width => 270, :height => 40)
-    checkButton.connect(SEL_COMMAND) { exit }
+
 
     deleteButton = FXButton.new(controls, "Удалить все сообщения и отчеты",:opts => FRAME_RAISED|FRAME_THICK|LAYOUT_LEFT|
         LAYOUT_CENTER_Y|LAYOUT_FIX_WIDTH|LAYOUT_FIX_HEIGHT,
                  :width => 250, :height => 40)
-    deleteButton.connect(SEL_COMMAND, method(:onCmdShowDialogModal))
+    deleteButton.connect(SEL_COMMAND){onCmdShowDialogModal(getDocNum(textField.getText)) }
 
     unblockButton = FXButton.new(controls, "Разблокировать РК", :opts => FRAME_RAISED|FRAME_THICK|LAYOUT_LEFT|
         LAYOUT_CENTER_Y|LAYOUT_FIX_WIDTH|LAYOUT_FIX_HEIGHT,
                  :width => 250, :height => 40)
-    unblockButton.connect(SEL_COMMAND) { exit }
+    unblockButton.connect(SEL_COMMAND) {  buttonDML(3, textField.getText) }
 
     fileButton = FXButton.new(controls, "Удаление файла", :opts => FRAME_RAISED|FRAME_THICK|LAYOUT_LEFT|
         LAYOUT_CENTER_Y|LAYOUT_FIX_WIDTH|LAYOUT_FIX_HEIGHT,
@@ -80,7 +82,7 @@ class MainWindow < FXMainWindow
     psoGuidButton = FXButton.new(controls, "ПСО ошибка с GUID", :opts => FRAME_RAISED|FRAME_THICK|LAYOUT_LEFT|
         LAYOUT_CENTER_Y|LAYOUT_FIX_WIDTH|LAYOUT_FIX_HEIGHT,
                  :width => 250, :height => 40)
-    psoGuidButton.connect(SEL_COMMAND) { exit }
+    psoGuidButton.connect(SEL_COMMAND) {exit}#{ buttonDML(4, textField.getText) }
 
 
         # Text window
@@ -90,6 +92,8 @@ class MainWindow < FXMainWindow
 
     # Set the text
     textBox.text = "Регистрационный номер:\nДата Регистрации:\nЖурнал:\n"
+
+    checkButton.connect(SEL_COMMAND) { checkID(textField.getText, textBox) }
 
     statusLabel = FXLabel.new(contents, "QueryStatus:none")
   end
@@ -126,7 +130,7 @@ class ConfirmDialog < FXDialogBox
                      LAYOUT_FIX_WIDTH|LAYOUT_FIX_HEIGHT,
                    :width => 100, :height => 30)
 
-    accept.connect(SEL_COMMAND, method(:checkConnection))
+    accept.connect(SEL_COMMAND) { buttonDML(3, doc_num) }
 
     # Cancel
     cancel = FXButton.new(buttons, "&Cancel", nil, self, ID_CANCEL,
@@ -174,8 +178,8 @@ class ResultDialog < FXDialogBox
   end
 end
 
-def onCmdShowDialogModal(sender=nil, sel=nil, ptr=nil)
-  ConfirmDialog.new(self).execute
+def onCmdShowDialogModal(sender=nil, sel=nil, ptr=nil, docnum)
+  ConfirmDialog.new(self, docnum).execute
   return 1
 end
 
@@ -198,7 +202,7 @@ end
 def query_make(type,id=null)
   case type
     when 1
-      result_query = "SELECT DocN FROM LDERC Where ID = #{id}"
+      result_query = "SELECT * FROM LDERC Where ID = #{id}"
     when 2
       result_query = "DECLARE @id_doc int
                       SET @id_doc = #{id}
@@ -247,14 +251,52 @@ end
 ##
 
 def checkConnection
+end
+
+
+#def checkRC(entry)
+#  +  client = client_init'dba','sql'
+#  result = client.execute(query_make 1,entry)
+#  result.each_with_index do |row|
+ #   puts row["DocN"]
+  #  +    text = row["DocN"]
+  #end
+  #+  client.close
+  #+  return text
+#end
+
+
+def checkID(entry, textbox)
   client = client_init('dba','sql')
-  puts "CONNECTION OK"
+  #puts "CONNECTION OK"
+  result = client.execute(query_make 1,entry)
+  result.each_with_index do |row|
+    #puts row["DocN"]
+    #puts row["RegDate"]
+    #puts row["JournalID"]
+    textbox.text = "Регистрационный номер: #{row["DocN"]}\nДата Регистрации: #{row["RegDate"]}\nЖурнал: #{row["JournalID"]}\n"
+  end
   client.close
+end
+def getDocNum(entry)
+  client = client_init('dba','sql')
+  #puts "CONNECTION OK"
+  text = ''
+  result = client.execute(query_make 1,entry)
+  result.each_with_index do |row|
+    #puts row["DocN"]
+    #puts row["RegDate"]
+    #puts row["JournalID"]
+    text = row["DocN"]
+  end
+  client.close
+  return text
 end
 
 def buttonDML(type,entry)
   client = client_init('dba','sql')
   client.execute(query_make type,entry)
+  puts query_make type,entry
   client.close
 end
 
