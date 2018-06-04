@@ -12,7 +12,7 @@ class MainWindow < FXMainWindow
 
   def initialize(app)
     # Invoke base class initialize first
-    super(app, "LD3ADM Kozlovskiy Revenge EDITION (0.2b)", :opts => DECOR_ALL, :width => 640, :height => 250)
+    super(app, "LD3ADM", :opts => DECOR_ALL, :width => 640, :height => 250)
 
     # Create a tooltip
     FXToolTip.new(self.getApp())
@@ -74,10 +74,10 @@ class MainWindow < FXMainWindow
                  :width => 250, :height => 40)
     unblockButton.connect(SEL_COMMAND) {  buttonDML(3, textField.getText) }
 
-    fileButton = FXButton.new(controls, "Удаление файла", :opts => FRAME_RAISED|FRAME_THICK|LAYOUT_LEFT|
-        LAYOUT_CENTER_Y|LAYOUT_FIX_WIDTH|LAYOUT_FIX_HEIGHT,
-                 :width => 250, :height => 40)
-    fileButton.connect(SEL_COMMAND, method(:onCmdShowDialogModal))
+    #fileButton = FXButton.new(controls, "Удаление файла", :opts => FRAME_RAISED|FRAME_THICK|LAYOUT_LEFT|
+    #    LAYOUT_CENTER_Y|LAYOUT_FIX_WIDTH|LAYOUT_FIX_HEIGHT,
+    #             :width => 250, :height => 40)
+    #fileButton.connect(SEL_COMMAND, method(:onCmdShowDialogModal))
 
     psoGuidButton = FXButton.new(controls, "ПСО ошибка с GUID", :opts => FRAME_RAISED|FRAME_THICK|LAYOUT_LEFT|
         LAYOUT_CENTER_Y|LAYOUT_FIX_WIDTH|LAYOUT_FIX_HEIGHT,
@@ -130,7 +130,10 @@ class ConfirmDialog < FXDialogBox
                      LAYOUT_FIX_WIDTH|LAYOUT_FIX_HEIGHT,
                    :width => 100, :height => 30)
 
-    accept.connect(SEL_COMMAND) { buttonDML(3, doc_num) }
+    accept.connect(SEL_COMMAND) do
+      buttonDML(3, doc_num)
+      exit
+    end
 
     # Cancel
     cancel = FXButton.new(buttons, "&Cancel", nil, self, ID_CANCEL,
@@ -178,7 +181,7 @@ class ResultDialog < FXDialogBox
   end
 end
 
-def onCmdShowDialogModal(sender=nil, sel=nil, ptr=nil, docnum)
+def onCmdShowDialogModal(docnum)
   ConfirmDialog.new(self, docnum).execute
   return 1
 end
@@ -210,7 +213,7 @@ def query_make(type,id=null)
                       SELECT ID FROM LDMAIL WHERE ERCID = @id_doc OR BaseERCID = @id_doc)
                       DELETE FROM LDOBJECT WHERE ID IN (SELECT ID FROM LDMAIL WHERE ERCID = @id_doc OR BaseERCID = @id_doc)"
     when 3
-      result_query = "update LDOBJECT set EditorID=NULL where ID= #{id}"
+      result_query = "UPDATE LDOBJECT SET EditorID=NULL where ID = #{id}"
 
     when 4
       result_query = "DECLARE @pUID [uniqueidentifier], @pObjectTypeID INT
