@@ -20,7 +20,7 @@ class MainWindow < FXMainWindow
     menubar = FXMenuBar.new(self, LAYOUT_SIDE_TOP|LAYOUT_FILL_X)
 
     filemenu = FXMenuPane.new(self)
-    FXMenuCommand.new(filemenu, "&Проверить соединение", nil, getApp(), FXApp::ID_QUIT, 0)
+    #FXMenuCommand.new(filemenu, "&Проверить соединение", nil, getApp(), FXApp::ID_QUIT, 0)
     FXMenuCommand.new(filemenu, "&Выход", nil, getApp(), FXApp::ID_QUIT, 0)
     FXMenuTitle.new(menubar, "&Файл", nil, filemenu)
 
@@ -96,7 +96,7 @@ class MainWindow < FXMainWindow
 
     checkButton.connect(SEL_COMMAND) { checkID(textField.getText, textBox) }
 
-    statusLabel = FXLabel.new(contents, "QueryStatus:none")
+    statusLabel = FXLabel.new(contents, "")
   end
 
 #####
