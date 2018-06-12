@@ -95,7 +95,7 @@ class MainWindow < FXMainWindow
 
     checkButton.connect(SEL_COMMAND) { checkID(textField.getText, textBox) }
 
-    statusLabel = FXLabel.new(contents, "QueryStatus:none")
+    statusLabel = FXLabel.new(contents, "")
   end
 
 #####
