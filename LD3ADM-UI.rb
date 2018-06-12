@@ -328,7 +328,8 @@ def buttonDML(type,entry)
   end
   #puts query_make type,entry
   client.close
-    end
+  showResultDialog("Запрос выполнен успешно")
+  end
 end
 
 
