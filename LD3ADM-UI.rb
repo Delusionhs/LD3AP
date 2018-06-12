@@ -20,7 +20,7 @@ class MainWindow < FXMainWindow
     menubar = FXMenuBar.new(self, LAYOUT_SIDE_TOP|LAYOUT_FILL_X)
 
     filemenu = FXMenuPane.new(self)
-    FXMenuCommand.new(filemenu, "&Проверить соединение", nil, getApp(), FXApp::ID_QUIT, 0)
+    #FXMenuCommand.new(filemenu, "&Проверить соединение", nil, getApp(), FXApp::ID_QUIT, 0)
     FXMenuCommand.new(filemenu, "&Выход", nil, getApp(), FXApp::ID_QUIT, 0)
     FXMenuTitle.new(menubar, "&Файл", nil, filemenu)
 
@@ -67,7 +67,8 @@ class MainWindow < FXMainWindow
     deleteButton = FXButton.new(controls, "Удалить все сообщения и отчеты",:opts => FRAME_RAISED|FRAME_THICK|LAYOUT_LEFT|
         LAYOUT_CENTER_Y|LAYOUT_FIX_WIDTH|LAYOUT_FIX_HEIGHT,
                  :width => 250, :height => 40)
-    deleteButton.connect(SEL_COMMAND){onCmdShowDialogModal(getDocNum(textField.getText)) }
+    deleteButton.connect(SEL_COMMAND) {  buttonDML(2, textField.getText) }
+    #{onCmdShowDialogModal(getDocNum(textField.getText)) }
 
     unblockButton = FXButton.new(controls, "Разблокировать РК", :opts => FRAME_RAISED|FRAME_THICK|LAYOUT_LEFT|
         LAYOUT_CENTER_Y|LAYOUT_FIX_WIDTH|LAYOUT_FIX_HEIGHT,
@@ -79,10 +80,10 @@ class MainWindow < FXMainWindow
     #             :width => 250, :height => 40)
     #fileButton.connect(SEL_COMMAND, method(:onCmdShowDialogModal))
 
-    psoGuidButton = FXButton.new(controls, "ПСО ошибка с GUID", :opts => FRAME_RAISED|FRAME_THICK|LAYOUT_LEFT|
-        LAYOUT_CENTER_Y|LAYOUT_FIX_WIDTH|LAYOUT_FIX_HEIGHT,
-                 :width => 250, :height => 40)
-    psoGuidButton.connect(SEL_COMMAND) {exit}#{ buttonDML(4, textField.getText) }
+   # psoGuidButton = FXButton.new(controls, "ПСО ошибка с GUID", :opts => FRAME_RAISED|FRAME_THICK|LAYOUT_LEFT|
+   #     LAYOUT_CENTER_Y|LAYOUT_FIX_WIDTH|LAYOUT_FIX_HEIGHT,
+   #              :width => 250, :height => 40)
+   # psoGuidButton.connect(SEL_COMMAND) {exit}#{ buttonDML(4, textField.getText) }
 
 
         # Text window
@@ -186,6 +187,11 @@ def onCmdShowDialogModal(docnum)
   return 1
 end
 
+def showResultDialog(text)
+  ResultDialog.new(self, text).execute
+  return 1
+end
+
 ######### end ui
 
 
@@ -201,11 +207,12 @@ end
 ##queries/connection
 ##
 
-
 def query_make(type,id=null)
   case type
     when 1
-      result_query = "SELECT * FROM LDERC Where ID = #{id}"
+      result_query = "SELECT DocN,FORMAT( RegDate, 'd', 'ru-ru' ) as RegDate,JournalName FROM LDERC rec
+                      LEFT JOIN FKDTTR_LOGMAPJOURNAL jr on jr.JournalID = rec.JournalID
+                      Where ID = #{id}"
     when 2
       result_query = "DECLARE @id_doc int
                       SET @id_doc = #{id}
@@ -268,8 +275,34 @@ end
   #+  return text
 #end
 
+def checkInput(entry)
+  #if entry == entry.gsub!(/\D/, "")
+  #end
+  entry.gsub!(/\D/, "")
+  if (!entry.empty?)
+    client = client_init('dba','sql')
+    test = 'failed'
+    result = client.execute(query_make 1,entry)
+    result.each_with_index do |row|
+      #puts row["DocN"]
+      #puts row["RegDate"]
+      #puts row["JournalID"]
+      test = 'OK'
+    end
+    client.close
+    if test == 'OK'
+      #puts 1
+      return true
+    end
+  end
+  showResultDialog("Не верный ID")
+  return false
+end
+
 
 def checkID(entry, textbox)
+  if (checkInput(entry))
+  textbox.text = "Регистрационный номер: null\nДата Регистрации: null\nЖурнал: null\n"
   client = client_init('dba','sql')
   #puts "CONNECTION OK"
   result = client.execute(query_make 1,entry)
@@ -277,30 +310,26 @@ def checkID(entry, textbox)
     #puts row["DocN"]
     #puts row["RegDate"]
     #puts row["JournalID"]
-    textbox.text = "Регистрационный номер: #{row["DocN"]}\nДата Регистрации: #{row["RegDate"]}\nЖурнал: #{row["JournalID"]}\n"
+    textbox.text = "Регистрационный номер: #{row["DocN"]}\nДата Регистрации: #{row["RegDate"]}\nЖурнал: #{row["JournalName"]}\n"
   end
   client.close
-end
-def getDocNum(entry)
-  client = client_init('dba','sql')
-  #puts "CONNECTION OK"
-  text = ''
-  result = client.execute(query_make 1,entry)
-  result.each_with_index do |row|
-    #puts row["DocN"]
-    #puts row["RegDate"]
-    #puts row["JournalID"]
-    text = row["DocN"]
   end
-  client.close
-  return text
 end
 
+
 def buttonDML(type,entry)
+  if (checkInput(entry))
   client = client_init('dba','sql')
-  client.execute(query_make type,entry)
-  puts query_make type,entry
+  result = client.execute(query_make type,entry)
+  result.each_with_index do |row|
+    #puts row["DocN"]
+    #puts row["RegDate"]
+    #puts row["JournalID"]
+  end
+  #puts query_make type,entry
   client.close
+  showResultDialog("Запрос выполнен успешно")
+  end
 end
 
 
