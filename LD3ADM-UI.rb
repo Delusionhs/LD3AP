@@ -12,7 +12,7 @@ class MainWindow < FXMainWindow
 
   def initialize(app)
     # Invoke base class initialize first
-    super(app, "LD3ADM", :opts => DECOR_ALL, :width => 640, :height => 250)
+    super(app, "LD3ADM v.0.9.1.1", :opts => DECOR_ALL, :width => 640, :height => 250)
 
     # Create a tooltip
     FXToolTip.new(self.getApp())
@@ -94,13 +94,14 @@ class MainWindow < FXMainWindow
     # Set the text
     textBox.text = "Регистрационный номер:\nДата Регистрации:\nЖурнал:\n"
 
+    #checkbutton action with textBox
     checkButton.connect(SEL_COMMAND) { checkID(textField.getText, textBox) }
 
     statusLabel = FXLabel.new(contents, "")
   end
 
 #####
-##### Диалоговое окно подтверждения
+##### Диалоговое окно подтверждения (not use in > 0,9)
 #####
 
 class ConfirmDialog < FXDialogBox
@@ -162,7 +163,7 @@ class ResultDialog < FXDialogBox
       theLabel.layoutHints = LAYOUT_FILL_X
     end
 
-    # Bottom buttons
+    # Steel NEED?
     buttons = FXHorizontalFrame.new(self,
                                       LAYOUT_SIDE_BOTTOM|FRAME_NONE|LAYOUT_FILL_X|PACK_UNIFORM_WIDTH,
                                       :padLeft => 40, :padRight => 40, :padTop => 20, :padBottom => 20)
@@ -195,7 +196,6 @@ end
 ######### end ui
 
 
-
 def create
     super
     show(PLACEMENT_SCREEN)
@@ -210,9 +210,9 @@ end
 def query_make(type,id=null)
   case type
     when 1
-      result_query = "SELECT DocN,FORMAT( RegDate, 'd', 'ru-ru' ) as RegDate,JournalName FROM LDERC rec
-                      LEFT JOIN FKDTTR_LOGMAPJOURNAL jr on jr.JournalID = rec.JournalID
-                      Where ID = #{id}"
+      result_query = "SELECT DocN,FORMAT( RegDate, 'd', 'ru-ru' ) as RegDate,Name FROM LDERC rec
+                      LEFT JOIN ADM_VIEWJOURNAL jr on jr.ID = rec.JournalID
+                      Where rec.ID = #{id}"
     when 2
       result_query = "DECLARE @id_doc int
                       SET @id_doc = #{id}
@@ -246,7 +246,7 @@ end
 #tiny TDS клиент
 def client_init (username,password)
   client = TinyTds::Client.new username: username, password: password,
-                               host: 'WIN-9655Q11EAT8', port: 1433,
+                               host: 'S4700LD3DB', port: 1433,
                                database: 'LD', timeout: 180
   return client
 end
@@ -260,20 +260,6 @@ end
 ##buttons
 ##
 
-def checkConnection
-end
-
-
-#def checkRC(entry)
-#  +  client = client_init'dba','sql'
-#  result = client.execute(query_make 1,entry)
-#  result.each_with_index do |row|
- #   puts row["DocN"]
-  #  +    text = row["DocN"]
-  #end
-  #+  client.close
-  #+  return text
-#end
 
 def checkInput(entry)
   #if entry == entry.gsub!(/\D/, "")
@@ -310,7 +296,7 @@ def checkID(entry, textbox)
     #puts row["DocN"]
     #puts row["RegDate"]
     #puts row["JournalID"]
-    textbox.text = "Регистрационный номер: #{row["DocN"]}\nДата Регистрации: #{row["RegDate"]}\nЖурнал: #{row["JournalName"]}\n"
+    textbox.text = "Регистрационный номер: #{row["DocN"]}\nДата Регистрации: #{row["RegDate"]}\nЖурнал: #{row["Name"]}\n"
   end
   client.close
   end
