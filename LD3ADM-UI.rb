@@ -245,8 +245,8 @@ def query_make(type,id=null)
                       SELECT ID FROM LDMAIL WHERE ERCID = @id_doc OR BaseERCID = @id_doc)"
   when 6
     result_query = "DECLARE @id_doc int
-                      UPDATE dbo.GRK_VIOLATIONCOMMONFIELDS set ActualID ='+' where ID=@id_doc
                       SET @id_doc = #{id}
+                      UPDATE dbo.GRK_VIOLATIONCOMMONFIELDS set ActualID ='+' where ID=@id_doc
                       DELETE  FROM LDDOCOPERATION WHERE MailID in (
                       SELECT ID FROM LDMAIL WHERE ERCID = @id_doc OR BaseERCID = @id_doc)
                       DELETE  FROM LDOBJECT WHERE ID IN (
