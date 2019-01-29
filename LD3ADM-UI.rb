@@ -255,7 +255,6 @@ def query_make(type,id=null)
                       SELECT ID FROM LDMAIL WHERE ERCID = @id_doc OR BaseERCID = @id_doc)
                       UPDATE dbo.GRK_VIOLATIONCOMMONFIELDS set FLSigned ='-' where ID=@id_doc
                     "
-
   end
   return result_query
 end
