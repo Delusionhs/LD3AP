@@ -5,7 +5,7 @@ include Fox
 
 
 #####
-##### Главное окно
+##### Main Window
 #####
 
 class MainWindow < FXMainWindow
@@ -80,6 +80,9 @@ class MainWindow < FXMainWindow
                                  :width => 250, :height => 40)
     inCardClearButton.connect(SEL_COMMAND) {  buttonDML(6, textField.getText) }
 
+    #
+    # extra buttons
+    #
     #inCardActualizeButton = FXButton.new(controls, "Проставить актуальность КВК", :opts => FRAME_RAISED|FRAME_THICK|LAYOUT_LEFT|
     #    LAYOUT_CENTER_Y|LAYOUT_FIX_WIDTH|LAYOUT_FIX_HEIGHT,
     #                             :width => 250, :height => 40)
@@ -111,7 +114,7 @@ class MainWindow < FXMainWindow
   end
 
 #####
-##### Диалоговое окно подтверждения (not use in > 0,9)
+##### Confirm Dialog Windows Y/N (not use in > 0,9)
 #####
 
 class ConfirmDialog < FXDialogBox
@@ -160,7 +163,7 @@ end
 
 
 #####
-##### Окно резальтата
+##### Result Dialog Windows
 #####
 
 class ResultDialog < FXDialogBox
@@ -213,9 +216,9 @@ def create
 end
 
 
-##
-##queries/connection
-##
+#####
+##### queries/connection
+#####
 
 def query_make(type,id=null)
   case type
@@ -258,19 +261,17 @@ def query_make(type,id=null)
                       SELECT ID FROM LDMAIL WHERE ERCID = @id_doc OR BaseERCID = @id_doc)
                       DELETE FROM LDMAILVERSION Where MailID in (
                       SELECT ID FROM LDMAIL WHERE ERCID = @id_doc OR BaseERCID = @id_doc)
-                      UPDATE dbo.GRK_VIOLATIONCOMMONFIELDS set FLSigned ='-' where ID=@id_doc
-                    "
+                      UPDATE dbo.GRK_VIOLATIONCOMMONFIELDS set FLSigned ='-' where ID=@id_doc"
   #  when 7
   #    result_query = "DECLARE @id_doc int
   #                   SET @id_doc = #{id}
-  #                   UPDATE dbo.GRK_VIOLATIONCOMMONFIELDS set ActualID ='-' where ID=@id_doc
-  #                 "
+  #                   UPDATE dbo.GRK_VIOLATIONCOMMONFIELDS set ActualID ='-' where ID=@id_doc"
   end
   return result_query
 end
 
 
-#tiny TDS клиент
+#tiny TDS client
 def client_init (username,password)
   client = TinyTds::Client.new username: username, password: password,
                                host: 'S4700LD3DB', port: 1433,
@@ -278,14 +279,9 @@ def client_init (username,password)
   return client
 end
 
-
-##
-##queries/connection end
-##
-
-##
-##buttons
-##
+#####
+##### button handlers
+#####
 
 
 def checkInput(entry)
@@ -346,9 +342,9 @@ def buttonDML(type,entry)
 end
 
 
-##
-##buttons end
-##
+#####
+#####
+#####
 
 
 
