@@ -238,6 +238,15 @@ def query_make(type,id=null)
                       SELECT ID FROM LDMAIL WHERE ERCID = @id_doc OR BaseERCID = @id_doc)
                       DELETE FROM LDMAILVERSION Where MailID in (
                       SELECT ID FROM LDMAIL WHERE ERCID = @id_doc OR BaseERCID = @id_doc)"
+  when 6
+    result_query = "DECLARE @id_doc int
+                      SET @id_doc = #{id}
+                      DELETE  FROM LDDOCOPERATION WHERE MailID in (
+                      SELECT ID FROM LDMAIL WHERE ERCID = @id_doc OR BaseERCID = @id_doc)
+                      DELETE  FROM LDOBJECT WHERE ID IN (
+                      SELECT ID FROM LDMAIL WHERE ERCID = @id_doc OR BaseERCID = @id_doc)
+                      DELETE FROM LDMAILVERSION Where MailID in (
+                      SELECT ID FROM LDMAIL WHERE ERCID = @id_doc OR BaseERCID = @id_doc)"
   end
   return result_query
 end
