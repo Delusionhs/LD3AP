@@ -262,9 +262,9 @@ def query_make(type,id=null)
                     "
   #  when 7
   #    result_query = "DECLARE @id_doc int
-   #                   SET @id_doc = #{id}
-    #                  UPDATE dbo.GRK_VIOLATIONCOMMONFIELDS set ActualID ='-' where ID=@id_doc
-   #                 "
+  #                   SET @id_doc = #{id}
+  #                   UPDATE dbo.GRK_VIOLATIONCOMMONFIELDS set ActualID ='-' where ID=@id_doc
+  #                 "
   end
   return result_query
 end
