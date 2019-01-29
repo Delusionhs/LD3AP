@@ -80,10 +80,10 @@ class MainWindow < FXMainWindow
                                  :width => 250, :height => 40)
     inCardClearButton.connect(SEL_COMMAND) {  buttonDML(6, textField.getText) }
 
-    inCardActualizeButton = FXButton.new(controls, "Проставить актуальность КВК", :opts => FRAME_RAISED|FRAME_THICK|LAYOUT_LEFT|
-        LAYOUT_CENTER_Y|LAYOUT_FIX_WIDTH|LAYOUT_FIX_HEIGHT,
-                                 :width => 250, :height => 40)
-    inCardActualizeButton.connect(SEL_COMMAND) {  buttonDML(7, textField.getText) }
+    #inCardActualizeButton = FXButton.new(controls, "Проставить актуальность КВК", :opts => FRAME_RAISED|FRAME_THICK|LAYOUT_LEFT|
+    #    LAYOUT_CENTER_Y|LAYOUT_FIX_WIDTH|LAYOUT_FIX_HEIGHT,
+    #                             :width => 250, :height => 40)
+    #inCardActualizeButton.connect(SEL_COMMAND) {  buttonDML(7, textField.getText) }
 
     #fileButton = FXButton.new(controls, "Удаление файла", :opts => FRAME_RAISED|FRAME_THICK|LAYOUT_LEFT|
     #    LAYOUT_CENTER_Y|LAYOUT_FIX_WIDTH|LAYOUT_FIX_HEIGHT,
@@ -260,11 +260,11 @@ def query_make(type,id=null)
                       SELECT ID FROM LDMAIL WHERE ERCID = @id_doc OR BaseERCID = @id_doc)
                       UPDATE dbo.GRK_VIOLATIONCOMMONFIELDS set FLSigned ='-' where ID=@id_doc
                     "
-    when 7
-      result_query = "DECLARE @id_doc int
-                      SET @id_doc = #{id}
-                      UPDATE dbo.GRK_VIOLATIONCOMMONFIELDS set ActualID ='-' where ID=@id_doc
-                    "
+  #  when 7
+  #    result_query = "DECLARE @id_doc int
+   #                   SET @id_doc = #{id}
+    #                  UPDATE dbo.GRK_VIOLATIONCOMMONFIELDS set ActualID ='-' where ID=@id_doc
+   #                 "
   end
   return result_query
 end
