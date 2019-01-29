@@ -75,7 +75,7 @@ class MainWindow < FXMainWindow
                  :width => 250, :height => 40)
     unblockButton.connect(SEL_COMMAND) {  buttonDML(3, textField.getText) }
 
-    cardInkButton = FXButton.new(controls, "Очистить и разболокировать КВК", :opts => FRAME_RAISED|FRAME_THICK|LAYOUT_LEFT|
+    cardInkButton = FXButton.new(controls, "Откатить КВК", :opts => FRAME_RAISED|FRAME_THICK|LAYOUT_LEFT|
         LAYOUT_CENTER_Y|LAYOUT_FIX_WIDTH|LAYOUT_FIX_HEIGHT,
                                  :width => 250, :height => 40)
     cardInkButton.connect(SEL_COMMAND) {  buttonDML(6, textField.getText) }
