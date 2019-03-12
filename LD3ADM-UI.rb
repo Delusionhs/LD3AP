@@ -233,7 +233,12 @@ def query_make(type,id=null)
                       SELECT ID FROM LDMAIL WHERE ERCID = @id_doc OR BaseERCID = @id_doc)
                       DELETE FROM LDOBJECT WHERE ID IN (SELECT ID FROM LDMAIL WHERE ERCID = @id_doc OR BaseERCID = @id_doc)"
     when 3
-      result_query = "UPDATE LDOBJECT SET EditorID=NULL where ID = #{id}"
+      result_query = "UPDATE LDOBJECT
+                      SET EditorID = null
+                      WHERE ID in (SELECT obj.ID FROM LDOBJECT obj
+                      WHERE obj.ID IN
+                      (SELECT ID FROM LDVERSION ver WHERE ver.DocID = #{id}))
+                      or ID = #{id}"
 
     when 4
       result_query = "DECLARE @pUID [uniqueidentifier], @pObjectTypeID INT
