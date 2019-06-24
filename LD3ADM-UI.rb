@@ -12,7 +12,7 @@ class MainWindow < FXMainWindow
 
   def initialize(app)
     # Invoke base class initialize first
-    super(app, "LD3ADM v.1.11", :opts => DECOR_ALL, :width => 640, :height => 250)
+    super(app, "LD3ADM v.1.3", :opts => DECOR_ALL, :width => 640, :height => 250)
 
     # Create a tooltip
     FXToolTip.new(self.getApp())
