@@ -70,6 +70,11 @@ class MainWindow < FXMainWindow
     deleteButton.connect(SEL_COMMAND) {  buttonDML(2, textField.getText) }
     #{onCmdShowDialogModal(getDocNum(textField.getText)) }
 
+    deleteMessageButton = FXButton.new(controls, "Удалить одно сообщение по ИД",:opts => FRAME_RAISED|FRAME_THICK|LAYOUT_LEFT|
+        LAYOUT_CENTER_Y|LAYOUT_FIX_WIDTH|LAYOUT_FIX_HEIGHT,
+                                :width => 250, :height => 40)
+    deleteMessageButton.connect(SEL_COMMAND) {  buttonDML(7, textField.getText) }
+
     unblockButton = FXButton.new(controls, "Разблокировать РК", :opts => FRAME_RAISED|FRAME_THICK|LAYOUT_LEFT|
         LAYOUT_CENTER_Y|LAYOUT_FIX_WIDTH|LAYOUT_FIX_HEIGHT,
                  :width => 250, :height => 40)
@@ -256,8 +261,8 @@ def query_make(type,id=null)
                       SELECT ID FROM LDMAIL WHERE ERCID = @id_doc OR BaseERCID = @id_doc)
                       DELETE FROM LDMAILVERSION Where MailID in (
                       SELECT ID FROM LDMAIL WHERE ERCID = @id_doc OR BaseERCID = @id_doc)"
-  when 6
-    result_query = "DECLARE @id_doc int
+    when 6
+      result_query = "DECLARE @id_doc int
                       SET @id_doc = #{id}
                       UPDATE dbo.GRK_VIOLATIONCOMMONFIELDS set ActualID ='+' where ID=@id_doc
                       DELETE  FROM LDDOCOPERATION WHERE MailID in (
@@ -272,7 +277,10 @@ def query_make(type,id=null)
                       SELECT ID FROM LDMAIL WHERE ParentID = @id_doc)
                       DELETE FROM LDDOCOPERATION WHERE MailID = @id_doc
                       DELETE FROM LDOBJECT WHERE ID = @id_doc"
-  #  when 8
+    when 8
+      result_query = "SELECT ID FROM LDOBJECT WHERE ID =  @id_doc AND ObjectTypeID = 23"
+
+  #  when 9
   #    result_query = "DECLARE @id_doc int
   #                   SET @id_doc = #{id}
   #                   UPDATE dbo.GRK_VIOLATIONCOMMONFIELDS set ActualID ='-' where ID=@id_doc"
@@ -333,6 +341,30 @@ def checkID(entry, textbox)
   end
   client.close
   end
+end
+
+def checkMessageID(entry, textbox)
+  #if entry == entry.gsub!(/\D/, "")
+  #end
+  entry.gsub!(/\D/, "")
+  if (!entry.empty?)
+    client = client_init('dba','sql')
+    test = 'failed'
+    result = client.execute(query_make 1,entry)
+    result.each_with_index do |row|
+      #puts row["DocN"]
+      #puts row["RegDate"]
+      #puts row["JournalID"]
+      test = 'OK'
+    end
+    client.close
+    if test == 'OK'
+      #puts 1
+      return true
+    end
+  end
+  showResultDialog("Не верный ID")
+  return false
 end
 
 
