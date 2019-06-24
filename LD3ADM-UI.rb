@@ -273,12 +273,16 @@ def query_make(type,id=null)
                       SELECT ID FROM LDMAIL WHERE ERCID = @id_doc OR BaseERCID = @id_doc)
                       UPDATE dbo.GRK_VIOLATIONCOMMONFIELDS set FLSigned ='-' where ID=@id_doc"
     when 7
-      result_query = "DELETE FROM LDOBJECT WHERE ID IN (
+      result_query = "DECLARE @id_doc int
+                      SET @id_doc = #{id}
+                      DELETE FROM LDOBJECT WHERE ID IN (
                       SELECT ID FROM LDMAIL WHERE ParentID = @id_doc)
                       DELETE FROM LDDOCOPERATION WHERE MailID = @id_doc
                       DELETE FROM LDOBJECT WHERE ID = @id_doc"
     when 8
-      result_query = "SELECT ID FROM LDOBJECT WHERE ID =  @id_doc AND ObjectTypeID = 23"
+      result_query = "DECLARE @id_doc int
+                      SET @id_doc = #{id}
+                      SELECT ID FROM LDOBJECT WHERE ID =  @id_doc AND ObjectTypeID = 23"
 
   #  when 9
   #    result_query = "DECLARE @id_doc int
@@ -341,30 +345,6 @@ def checkID(entry, textbox)
   end
   client.close
   end
-end
-
-def checkMessageID(entry, textbox)
-  #if entry == entry.gsub!(/\D/, "")
-  #end
-  entry.gsub!(/\D/, "")
-  if (!entry.empty?)
-    client = client_init('dba','sql')
-    test = 'failed'
-    result = client.execute(query_make 1,entry)
-    result.each_with_index do |row|
-      #puts row["DocN"]
-      #puts row["RegDate"]
-      #puts row["JournalID"]
-      test = 'OK'
-    end
-    client.close
-    if test == 'OK'
-      #puts 1
-      return true
-    end
-  end
-  showResultDialog("Не верный ID")
-  return false
 end
 
 
