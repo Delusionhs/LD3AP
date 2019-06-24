@@ -73,7 +73,7 @@ class MainWindow < FXMainWindow
     deleteMessageButton = FXButton.new(controls, "Удалить одно сообщение по ИД",:opts => FRAME_RAISED|FRAME_THICK|LAYOUT_LEFT|
         LAYOUT_CENTER_Y|LAYOUT_FIX_WIDTH|LAYOUT_FIX_HEIGHT,
                                 :width => 250, :height => 40)
-    deleteMessageButton.connect(SEL_COMMAND) {  buttonDML(7, textField.getText) }
+    deleteMessageButton.connect(SEL_COMMAND) {  buttonDML(7, textField.getText, 2) }
 
     unblockButton = FXButton.new(controls, "Разблокировать РК", :opts => FRAME_RAISED|FRAME_THICK|LAYOUT_LEFT|
         LAYOUT_CENTER_Y|LAYOUT_FIX_WIDTH|LAYOUT_FIX_HEIGHT,
@@ -306,11 +306,11 @@ end
 #####
 
 
-def checkInput(entry)
+def checkInput(entry, idType = 1)
   #if entry == entry.gsub!(/\D/, "")
   #end
   entry.gsub!(/\D/, "")
-  if (!entry.empty?)
+  if (!entry.empty? && idType == 1)
     client = client_init('dba','sql')
     test = 'failed'
     result = client.execute(query_make 1,entry)
@@ -326,6 +326,19 @@ def checkInput(entry)
       return true
     end
   end
+  if (!entry.empty? && idType == 2)
+    client = client_init('dba','sql')
+    test = 'failed'
+    result = client.execute(query_make 8,entry)
+    result.each_with_index do |row|
+      test = 'OK'
+    end
+    client.close
+    if test == 'OK'
+      #puts 1
+      return true
+    end
+  end
   showResultDialog("Не верный ID")
   return false
 end
@@ -333,33 +346,26 @@ end
 
 def checkID(entry, textbox)
   if (checkInput(entry))
-  textbox.text = "Регистрационный номер: null\nДата Регистрации: null\nЖурнал: null\n"
-  client = client_init('dba','sql')
-  #puts "CONNECTION OK"
-  result = client.execute(query_make 1,entry)
-  result.each_with_index do |row|
-    #puts row["DocN"]
-    #puts row["RegDate"]
-    #puts row["JournalID"]
-    textbox.text = "Регистрационный номер: #{row["DocN"]}\nДата Регистрации: #{row["RegDate"]}\nЖурнал: #{row["Name"]}\n"
-  end
-  client.close
+    textbox.text = "Регистрационный номер: null\nДата Регистрации: null\nЖурнал: null\n"
+    client = client_init('dba','sql')
+    #puts "CONNECTION OK"
+    result = client.execute(query_make 1,entry)
+    result.each_with_index do |row|
+      textbox.text = "Регистрационный номер: #{row["DocN"]}\nДата Регистрации: #{row["RegDate"]}\nЖурнал: #{row["Name"]}\n"
+    end
+    client.close
   end
 end
 
 
-def buttonDML(type,entry)
-  if (checkInput(entry))
-  client = client_init('dba','sql')
-  result = client.execute(query_make type,entry)
-  result.each_with_index do |row|
-    #puts row["DocN"]
-    #puts row["RegDate"]
-    #puts row["JournalID"]
-  end
-  #puts query_make type,entry
-  client.close
-  showResultDialog("Запрос выполнен успешно")
+def buttonDML(type,entry, idType = 1)
+  if (checkInput(entry, idType))
+    client = client_init('dba','sql')
+    result = client.execute(query_make type,entry)
+    result.each_with_index do |row|
+    end
+    client.close
+    showResultDialog("Запрос выполнен успешно")
   end
 end
 
