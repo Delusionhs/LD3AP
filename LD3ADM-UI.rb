@@ -12,7 +12,7 @@ class MainWindow < FXMainWindow
 
   def initialize(app)
     # Invoke base class initialize first
-    super(app, "LD3ADM v.1.1", :opts => DECOR_ALL, :width => 640, :height => 250)
+    super(app, "LD3ADM v.1.11", :opts => DECOR_ALL, :width => 640, :height => 250)
 
     # Create a tooltip
     FXToolTip.new(self.getApp())
@@ -267,7 +267,12 @@ def query_make(type,id=null)
                       DELETE FROM LDMAILVERSION Where MailID in (
                       SELECT ID FROM LDMAIL WHERE ERCID = @id_doc OR BaseERCID = @id_doc)
                       UPDATE dbo.GRK_VIOLATIONCOMMONFIELDS set FLSigned ='-' where ID=@id_doc"
-  #  when 7
+    when 7
+      result_query = "DELETE FROM LDOBJECT WHERE ID IN (
+                      SELECT ID FROM LDMAIL WHERE ParentID = @id_doc)
+                      DELETE FROM LDDOCOPERATION WHERE MailID = @id_doc
+                      DELETE FROM LDOBJECT WHERE ID = @id_doc"
+  #  when 8
   #    result_query = "DECLARE @id_doc int
   #                   SET @id_doc = #{id}
   #                   UPDATE dbo.GRK_VIOLATIONCOMMONFIELDS set ActualID ='-' where ID=@id_doc"
